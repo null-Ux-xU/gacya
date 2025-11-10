@@ -4,9 +4,21 @@ import { sortByRarity } from "./sort.js";
 
 class MainLogic
 {
+  //レアリティのベース
   static rarityTable = ["N", "R", "SR", "SSR", "UR" ,"LR"];
-  static baseWeights = [60, 30, 8, 1, 0.75, 0.25];
   
+  //デフォルトの確率
+  static baseWeights = [60, 30, 8, 1, 0.75, 0.25];
+
+  //レアリティの表示変更用
+  static rarityDisplayNames = {
+  N: "N",
+  R: "R",
+  SR: "SR",
+  SSR: "SSR",
+  UR: "UR",
+  LR: "LR"
+};
    // レアリティごとのアイテム
   static itemsByRarity = {};
 }
@@ -60,55 +72,128 @@ function callMainAction(count) {
     for (const [key, val] of Object.entries(summary)) {
       const [rarity, item] = key.split("：");
       const tr = document.createElement("tr");
-      tr.innerHTML = `<td>${rarity}</td><td>${item}</td><td>×${val}個</td>`;
+      tr.innerHTML = `<td>${MainLogic.rarityDisplayNames[rarity]}</td><td>${item}</td><td>×${val}個</td>`;
       tbody.appendChild(tr);
     }
 
   } else {
     for (const res of resultLen) {
       const tr = document.createElement("tr");
-      tr.innerHTML = `<td>${res.rarity}</td><td>${res.item}</td><td>×1個</td>`;
+      tr.innerHTML = `<td>${MainLogic.rarityDisplayNames[res.rarity]}</td><td>${res.item}</td><td>×1個</td>`;
       tbody.appendChild(tr);
     }
   }
 }
 
 function updateLabels() {
-  //レアリティの数を取得
   const level = parseInt(document.getElementById("rarityNum").value);
+  const container = document.getElementById("table");
+  container.innerHTML = "";
 
-  //表示を変更する為のテーブルを取得
-  const container =  document.getElementById("table");
+  // --- 保存済みのレアリティ名を復元 ---
+  const saved = JSON.parse(localStorage.getItem("rarityDisplayNames") || "{}");
+  for (const [key, val] of Object.entries(saved)) {
+    if (MainLogic.rarityDisplayNames[key]) {
+      MainLogic.rarityDisplayNames[key] = val;
+    }
+  }
 
-  //現在の中身を消去
-  container.innerHTML="";
-
-  
-  //基本確率をコピー
+  // --- 基本確率を調整 ---
   const base = MainLogic.baseWeights;
-
-  //失われたレアリティの合計を末尾のレアリティに加算
   const lostWeights = base.slice(level).reduce((a, b) => a + b, 0);
   const adjustedWeights = base.slice(0, level);
-  if (level > 0) {
-    adjustedWeights[level - 1] += lostWeights;
-  }
-
-  // --- 合計100%になるように再計算 ---
+  if (level > 0) adjustedWeights[level - 1] += lostWeights;
   const totalWeight = adjustedWeights.reduce((a, b) => a + b, 0);
 
-  //レアリティの数だけ取得し、格納する
-  for (let i = 0; i < level; i++) {
-    const name = MainLogic.rarityTable[i];
-    
-    // 自動計算して value に設定
-    let resultValue = (adjustedWeights[i] / totalWeight * 100).toFixed(2);
+  // --- テーブル生成 ---
+  const table = document.createElement("table");
+  table.style.borderCollapse = "collapse";
+  table.style.marginTop = "10px";
 
-    const label = document.createElement("label");
-    label.innerHTML = `${name}: <input id="prob${name}" type="number" value="${resultValue}" step="0.1"> %`;
-    container.appendChild(label);
-    container.appendChild(document.createElement("br"));
+  // --- ヘッダー行 ---
+  const thead = document.createElement("thead");
+  const headerRow = document.createElement("tr");
+  ["表示名（編集可）", "排出確率（%）"].forEach(text => {
+    const th = document.createElement("th");
+    th.textContent = text;
+    th.style.border = "1px solid black";
+    th.style.padding = "4px 8px";
+    th.style.background = "#f0f0f0";
+    headerRow.appendChild(th);
+  });
+  thead.appendChild(headerRow);
+  table.appendChild(thead);
+
+  // --- 本体 ---
+  const tbody = document.createElement("tbody");
+
+  for (let i = 0; i < level; i++) {
+    const rarity = MainLogic.rarityTable[i];
+    const displayName = MainLogic.rarityDisplayNames[rarity];
+    const resultValue = (adjustedWeights[i] / totalWeight * 100).toFixed(2);
+
+    const row = document.createElement("tr");
+
+    // ▼ 記号
+    //const tdSymbol = document.createElement("td");
+    //tdSymbol.textContent = rarity;
+    //tdSymbol.style.border = "1px solid black";
+    //tdSymbol.style.padding = "4px 8px";
+
+    // ▼ 表示名入力
+    const tdName = document.createElement("td");
+    const nameInput = document.createElement("input");
+    nameInput.type = "text";
+    nameInput.value = displayName;
+    nameInput.dataset.rarity = rarity;
+    nameInput.style.width = "120px";
+    nameInput.addEventListener("input", e => {
+      const r = e.target.dataset.rarity;
+      MainLogic.rarityDisplayNames[r] = e.target.value.trim() || r;
+      localStorage.setItem(
+        "rarityDisplayNames",
+        JSON.stringify(MainLogic.rarityDisplayNames)
+      );
+      const level = parseInt(document.getElementById("rarityNum").value);
+      showLineup(level);
+    });
+    tdName.appendChild(nameInput);
+    tdName.style.border = "1px solid black";
+    tdName.style.padding = "4px 8px";
+
+    // ▼ 確率入力
+    const tdProb = document.createElement("td");
+    const probInput = document.createElement("input");
+    probInput.type = "number";
+    probInput.id = "prob" + rarity;
+    probInput.value = resultValue;
+    probInput.step = "0.1";
+    probInput.style.width = "80px";
+    tdProb.appendChild(probInput);
+    tdProb.style.border = "1px solid black";
+    tdProb.style.padding = "4px 8px";
+
+    //row.appendChild(tdSymbol);
+    row.appendChild(tdName);
+    row.appendChild(tdProb);
+    tbody.appendChild(row);
   }
+
+  table.appendChild(tbody);
+  container.appendChild(table);
+
+  // --- 保存ボタン ---
+  const saveBtn = document.createElement("button");
+  saveBtn.textContent = "レアリティ名を保存";
+  saveBtn.style.marginTop = "6px";
+  saveBtn.addEventListener("click", () => {
+    localStorage.setItem(
+      "rarityDisplayNames",
+      JSON.stringify(MainLogic.rarityDisplayNames)
+    );
+    alert("レアリティ名を保存しました！");
+  });
+  container.appendChild(saveBtn);
 }
 
 function showLineup(level) {
@@ -126,11 +211,11 @@ function showLineup(level) {
   const thItem = document.createElement("th");
   thItem.textContent = "アイテム名（編集可）";
   const thCount = document.createElement("th");
-  thCount.textContent = "個数";
+  //thCount.textContent = "個数";
 
   headerRow.appendChild(thRarity);
   headerRow.appendChild(thItem);
-  headerRow.appendChild(thCount);
+  //headerRow.appendChild(thCount);
   thead.appendChild(headerRow);
   table.appendChild(thead);
 
@@ -158,7 +243,7 @@ function showLineup(level) {
     MainLogic.rarityTable.forEach(r => {
       const option = document.createElement("option");
       option.value = r;
-      option.textContent = r;
+      option.textContent =  MainLogic.rarityDisplayNames[r];
       if (r === data.rarity) option.selected = true;
       select.appendChild(option);
     });
@@ -188,20 +273,21 @@ function showLineup(level) {
       if (idx >= 0) MainLogic.itemsByRarity[data.rarity][idx] = e.target.value;
       data.item = e.target.value;
     });
+    
     itemCell.appendChild(input);
 
     // ▼ 個数入力欄
-    const countCell = document.createElement("td");
-    const countInput = document.createElement("input");
-    countInput.type = "number";
-    countInput.min = 1;
-    countInput.value = 1;
-    countInput.style.width = "50px";
-    countCell.appendChild(countInput);
+    //const countCell = document.createElement("td");
+    //const countInput = document.createElement("input");
+    //countInput.type = "number";
+    //countInput.min = 1;
+    //countInput.value = 1;
+    //countInput.style.width = "50px";
+    //countCell.appendChild(countInput);
 
     row.appendChild(rarityCell);
     row.appendChild(itemCell);
-    row.appendChild(countCell);
+    //row.appendChild(countCell);
     tbody.appendChild(row);
   }
 
@@ -220,6 +306,7 @@ function showLineup(level) {
 
 // イベント登録
 window.addEventListener("DOMContentLoaded", () => {
+  updateLabels();
   const level = parseInt(document.getElementById("rarityNum").value) || 1;
   showLineup(level);
 
