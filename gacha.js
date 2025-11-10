@@ -3,15 +3,14 @@ import { MersenneTwister } from "./MersenneTwister.js";
 
 /**
  * ガチャを引く
- * @param {Object} options
  * @param {int} gachaCount - 回数(n連)
  * @param {float[]} probabilities - レアリティ毎の確率
- * @param {int} [rarityLevel] - レアリティ個数
- * @param {string[]} [rarityTable] - レアリティの名前
- * @param {string[]} [itemsByRarity] - レアリティごとのアイテムリスト
+ * @param {int} rarityNum - レアリティ個数
+ * @param {string[]} rarityTable - レアリティの名前
+ * @param {string[]} itemsByRarity - レアリティごとのアイテムリスト
  * @returns {Object[]} 排出されたアイテム群[({ レアリティ, アイテム })]
  */
-export function gachaLogic({gachaCount, probabilities, rarityLevel, rarityTable, itemsByRarity}) {
+export function gachaLogic({gachaCount, probabilities, rarityNum, rarityTable, itemsByRarity}) {
     //乱数生成
     const mt = new MersenneTwister(Date.now());
   
@@ -26,7 +25,7 @@ export function gachaLogic({gachaCount, probabilities, rarityLevel, rarityTable,
         let rarity = "";
 
         //レアリティ抽選
-        for (let j = 0; j < rarityLevel; j++) {
+        for (let j = 0; j < rarityNum; j++) {
             //確率を加算して何回目で当たったかでレアリティを確定(N→0~60まで R60以上60+n以下)
             cumulative += probabilities[j];
 

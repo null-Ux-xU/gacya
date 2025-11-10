@@ -1,5 +1,6 @@
 import { MersenneTwister } from "./MersenneTwister.js";
 import { gachaLogic } from "./gacha.js";
+import { sortByRarity } from "./sort.js";
 
 class MainLogic
 {
@@ -12,11 +13,10 @@ class MainLogic
 
 function callMainAction(count) {
   // 入力値（1〜6）
-  const level = parseInt(document.getElementById("rarityLevel").value);
+  const level = parseInt(document.getElementById("rarityNum").value);
 
   // 入力欄から確率を取得
   const probabilities = [];
-
   for(let i = 0; i < level; i++ ) {
     probabilities.push(parseFloat(document.getElementById("prob"+ MainLogic.rarityTable[i]).value));
   }
@@ -27,22 +27,29 @@ function callMainAction(count) {
     alert("合計が100%になるように設定してください！ (現在: " + parseFloat(total.toFixed(2)) + "%)");
     return;
   }
+
   //ガチャの処理
-  const resultLen = gachaLogic({
+  let resultLen = gachaLogic({
     gachaCount: count,
     probabilities: probabilities,
-    rarityLevel: level,
+    rarityNum: level,
     rarityTable: MainLogic.rarityTable,
     itemsByRarity: MainLogic.itemsByRarity
   });
 
-  //チェックボックスの状態を確認
+  //ソートの確認と実施
+  const isSort = document.getElementById("sortByRarity")?.checked;
+  if(isSort) {
+    resultLen = sortByRarity(resultLen, MainLogic.rarityTable);
+  }
+
+  //表示
   const combine = document.getElementById("combineDuplicates").checked;
   const tbody = document.getElementById("resultBody");
-  tbody.innerHTML = ""; // 一旦クリア
+  tbody.innerHTML = ""; 
 
+  // 重複をまとめるか否か
   if (combine) {
-    // 重複をまとめる
     const summary = {};
 
     for (const res of resultLen) {
@@ -56,8 +63,8 @@ function callMainAction(count) {
       tr.innerHTML = `<td>${rarity}</td><td>${item}</td><td>×${val}個</td>`;
       tbody.appendChild(tr);
     }
+
   } else {
-    // 重複をまとめない
     for (const res of resultLen) {
       const tr = document.createElement("tr");
       tr.innerHTML = `<td>${res.rarity}</td><td>${res.item}</td><td>×1個</td>`;
@@ -68,7 +75,7 @@ function callMainAction(count) {
 
 function updateLabels() {
   //レアリティの数を取得
-  const level = parseInt(document.getElementById("rarityLevel").value);
+  const level = parseInt(document.getElementById("rarityNum").value);
 
   //表示を変更する為のテーブルを取得
   const container =  document.getElementById("table");
@@ -76,16 +83,26 @@ function updateLabels() {
   //現在の中身を消去
   container.innerHTML="";
 
-  // 選択レベルに応じた合計
-  const selectedWeights = MainLogic.baseWeights.slice(0, level);
-  const totalWeight = selectedWeights.reduce((a,b)=>a+b, 0);
+  
+  //基本確率をコピー
+  const base = MainLogic.baseWeights;
+
+  //失われたレアリティの合計を末尾のレアリティに加算
+  const lostWeights = base.slice(level).reduce((a, b) => a + b, 0);
+  const adjustedWeights = base.slice(0, level);
+  if (level > 0) {
+    adjustedWeights[level - 1] += lostWeights;
+  }
+
+  // --- 合計100%になるように再計算 ---
+  const totalWeight = adjustedWeights.reduce((a, b) => a + b, 0);
 
   //レアリティの数だけ取得し、格納する
   for (let i = 0; i < level; i++) {
     const name = MainLogic.rarityTable[i];
     
     // 自動計算して value に設定
-    let resultValue = (selectedWeights[i] / totalWeight * 100).toFixed(2);
+    let resultValue = (adjustedWeights[i] / totalWeight * 100).toFixed(2);
 
     const label = document.createElement("label");
     label.innerHTML = `${name}: <input id="prob${name}" type="number" value="${resultValue}" step="0.1"> %`;
@@ -203,19 +220,19 @@ function showLineup(level) {
 
 // イベント登録
 window.addEventListener("DOMContentLoaded", () => {
-  const level = parseInt(document.getElementById("rarityLevel").value) || 1;
+  const level = parseInt(document.getElementById("rarityNum").value) || 1;
   showLineup(level);
 
   // 行数変更時に再描画
   document.getElementById("lineupNum").addEventListener("change", () => {
-  const level = parseInt(document.getElementById("rarityLevel").value);
+  const level = parseInt(document.getElementById("rarityNum").value);
   showLineup(level);
   });
   
-  //rarityLevelが変更された時
-  document.getElementById("rarityLevel").addEventListener("change", () => {
+  //rarityNumが変更された時
+  document.getElementById("rarityNum").addEventListener("change", () => {
     updateLabels();
-    const level = parseInt(document.getElementById("rarityLevel").value);
+    const level = parseInt(document.getElementById("rarityNum").value);
     showLineup(level);
   });
 

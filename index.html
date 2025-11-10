@@ -8,7 +8,7 @@
 <body>
   <h2>ガチャ確率設定</h2>
   
-  <label>レアリティ数量 <input id="rarityLevel" type="number" value="6" step="1" min="1" max="6"></label><br>
+  <label>レアリティ数量 <input id="rarityNum" type="number" value="6" step="1" min="1" max="6"></label><br>
 
   <div id="table">
     <label>N  : <input id="probN"  type="number" value="60" step="0.1"> %</label><br>
@@ -33,6 +33,10 @@
   <label>
     <input type="checkbox" id="combineDuplicates" checked>
     重複した結果をまとめて表示する
+  </label>
+  <label>
+    <input type="checkbox" id="sortByRarity">
+    レアリティ順にソートする
   </label>
 </div>
 
