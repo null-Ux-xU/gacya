@@ -1,4 +1,5 @@
 import { MersenneTwister } from "./MersenneTwister.js";
+import { gachaLogic } from "./gacha.js";
 
 class MainLogic
 {
@@ -22,47 +23,19 @@ function callMainAction(count) {
     
   // 合計チェック
   const total = probabilities.slice(0, level).reduce((a, b) => a + b, 0);
-  if (Math.abs(total - 100) > 0.01) {
-    document.getElementById("result").textContent = "合計が100%になるように設定してください！ (現在: " + total.toFixed(1) + "%)";
+  if (Math.abs(parseFloat(total - 100)) > 0.01) {
+    alert("合計が100%になるように設定してください！ (現在: " + parseFloat(total.toFixed(2)) + "%)");
     return;
   }
+  //ガチャの処理
+  const resultLen = gachaLogic({
+    gachaCount: count,
+    probabilities: probabilities,
+    rarityLevel: level,
+    rarityTable: MainLogic.rarityTable,
+    itemsByRarity: MainLogic.itemsByRarity
+  });
 
-  //乱数生成
-  const mt = new MersenneTwister(Date.now());
-  
-  //計算に使う変数の作成
-  const resultLen = [];
-
-  //countに応じたループ(n連実装部)
-  for(let i = 0; i < count; i++ ){
-    //1抽選毎に初期化
-    let rand = mt.random()*100;
-    let cumulative = 0;
-    let rarity = "";
-
-    //レアリティ抽選
-    for (let j = 0; j < level; j++) {
-      //確率を加算して何回目で当たったかでレアリティを確定(N→0~60まで R60以上60+n以下)
-      cumulative += probabilities[j];
-
-      //当たった時の処理
-      if (rand < cumulative) {
-        rarity = MainLogic.rarityTable[j];
-        break;
-      }
-    }
-
-    // レアリティ内のアイテム抽選(Nの「○○」が何かを抽選)
-    const itemList = MainLogic.itemsByRarity[rarity] || [];
-    let item = "はずれ";
-    if (itemList.length > 0) {
-      const selected = itemList[Math.floor(mt.random() * itemList.length)];
-      // 空文字なら「はずれ」にする
-      item = selected && selected.trim() !== "" ? selected : "はずれ";
-    }
-
-    resultLen.push({ rarity, item });
-  }
   //チェックボックスの状態を確認
   const combine = document.getElementById("combineDuplicates").checked;
   const tbody = document.getElementById("resultBody");
