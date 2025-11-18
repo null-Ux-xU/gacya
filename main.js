@@ -277,21 +277,6 @@ function showLineup() {
       rarityName: itemData.rarity
     });
     
-    //プルダウンに変更があったら登録
-    select.addEventListener("change", e => {
-      //変更後のレアリティ
-      const newRarity = e.target.value;
-
-      //現在のレアリティの同名を検索
-      const index = MainData.resultItems[itemData.rarity].indexOf(itemData.itemName);
-
-      //元の配列から削除
-      if (index >= 0) MainData.resultItems[itemData.rarity].splice(index, 1);
-      
-      //新しいレアリティに追加
-      MainData.resultItems[newRarity].push(itemData.itemName);
-      showLineup();
-    });
 
     //名前入力欄に変更があったら登録
     itemCell.addEventListener("change", e => {
@@ -306,8 +291,27 @@ function showLineup() {
 
       //新しい名前を追加
       MainData.resultItems[itemData.rarity].push(newName);
-      showLineup();
+      itemData.itemName = newName;
     });
+
+
+    //プルダウンに変更があったら登録
+    select.addEventListener("change", e => {
+      //変更後のレアリティ
+      const newRarity = e.target.value;
+
+      //現在のレアリティの同名を検索
+      const index = MainData.resultItems[itemData.rarity].indexOf(itemData.itemName);
+
+      //元の配列から削除
+      if (index >= 0) MainData.resultItems[itemData.rarity].splice(index, 1);
+      
+      //新しいレアリティに追加
+      MainData.resultItems[newRarity].push(itemData.itemName);
+      itemData.rarity = newRarity;
+    });
+
+    
 
     row.appendChild(rarityCell);
     row.appendChild(itemCell);
