@@ -1,67 +1,70 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <title>ガチャテスト</title>
- 
-</head>
-<body>
-  <h2>ガチャ確率設定</h2>
+  <head>
+    <meta charset="UTF-8">
+    <title>ガチャテスト</title>
+  </head>
+  <body>
+    <h2>ガチャ確率設定</h2>
+    <input type="file" id="importZip" accept=".zip">
+    <h3>レアリティ名の編集</h3>
+    <div id="rarityNamesEditor"></div>
+    <label>レアリティ数量 <input id="rarityNum" type="number" value="6" step="1" min="1" max="6"></label><br>
+
+    <div id="rarityTable">
+      <label>N  : <input id="probN"  type="number" value="60" step="0.1"> %</label><br>
+      <label>R  : <input id="probR"  type="number" value="30" step="0.1"> %</label><br>
+      <label>SR : <input id="probSR" type="number" value="8" step="0.1"> %</label><br>
+      <label>SSR: <input id="probSSR" type="number" value="1" step="0.1"> %</label><br>
+      <label>UR: <input id="probUR" type="number" value="0.75" step="0.1"> %</label><br>
+      <label>LR: <input id="probLR" type="number" value="0.25" step="0.1"> %</label><br>
+    </div>
+
+    <div>
+      <button id="saveButton">編集したデータの保存</button>
+      <button id="deleteDataButton">保存したデータの削除</button>
+    </div>
+
+
+    <div>
+      <button id="showMaindatabutton">メインデータの表示(デバッグ用)</button>
+    </div><br>
+
+    <label>ガチャラインナップ <input id="lineupNum"  type="number" value="5" step="1" min="1"> 個</label>
+    <table id="lineupTable"></table><br>
+
+    <label>
+        <input type="checkbox" id="isFilterOnlyActiveItems" checked>ラインナップに設定されていないレアリティを排出しない 
+    </label><br>
+
+    <label>ガチャ回数 <input id="gachaCount" type="number" value="100" min="1" step="1" min="1"> 回</label><br><br>
   
-  <h3>レアリティ名の編集</h3>
-  <div id="rarityNamesEditor"></div>
-  <label>レアリティ数量 <input id="rarityNum" type="number" value="6" step="1" min="1" max="6"></label><br>
+    <button id="gachaSingle">単発</button>
+    <button id="gachaTen">10連</button>
+    <button id="gachaCustom">任意回数</button>
 
-  <div id="rarityTable">
-    <label>N  : <input id="probN"  type="number" value="60" step="0.1"> %</label><br>
-    <label>R  : <input id="probR"  type="number" value="30" step="0.1"> %</label><br>
-    <label>SR : <input id="probSR" type="number" value="8" step="0.1"> %</label><br>
-    <label>SSR: <input id="probSSR" type="number" value="1" step="0.1"> %</label><br>
-    <label>UR: <input id="probUR" type="number" value="0.75" step="0.1"> %</label><br>
-    <label>LR: <input id="probLR" type="number" value="0.25" step="0.1"> %</label><br>
-  </div>
-
-  <div>
-    <button id="saveButton">編集したデータの保存</button>
-    <button id="deleteDataButton">保存したデータの削除</button>
-  </div>
+    <div>
+      <label>
+        <input type="checkbox" id="combineDuplicates" checked>重複した結果をまとめて表示する
+      </label>
+      <label>
+        <input type="checkbox" id="sortByRarity">レアリティ順にソートする
+      </label>
+      
+    </div>
 
 
-  <div>
-    <button id="showMaindatabutton">メインデータの表示(デバッグ用)</button>
-  </div>
-
-  <br><label>ガチャラインナップ <input id="lineupNum"  type="number" value="5" step="1" min="1"> 個</label>
-  <table id="lineupTable"></table>
-
-  <br><label>ガチャ回数 <input id="gachaCount" type="number" value="100" min="1" step="1" min="1"> 回</label><br><br>
-  
-  <button id="gachaSingle">単発</button>
-  <button id="gachaTen">10連</button>
-  <button id="gachaCustom">任意回数</button>
-
-  <div>
-  <label>
-    <input type="checkbox" id="combineDuplicates" checked>
-    重複した結果をまとめて表示する
-  </label>
-  <label>
-    <input type="checkbox" id="sortByRarity">
-    レアリティ順にソートする
-  </label>
-</div>
-
-
-<table id="resultTable" border="1" style="border-collapse: collapse; margin-top: 10px;">
-  <thead>
-    <tr>
-      <th>レアリティ</th>
-      <th>アイテム名</th>
-      <th>個数</th>
-    </tr>
-  </thead>
-  <tbody id="resultBody"></tbody>
-</table>
-  <script type="module" src="main.js"></script>
-</body>
+    <table id="resultTable" border="1" style="border-collapse: collapse; margin-top: 10px;">
+      <thead>
+        <tr>
+          <th>レアリティ</th>
+          <th>アイテム名</th>
+          <th>個数</th>
+        </tr>
+      </thead>
+      <tbody id="resultBody"></tbody>
+    </table>
+    <script type="module" src="main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  </body>
 </html>

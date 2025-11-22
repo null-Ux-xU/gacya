@@ -10,9 +10,10 @@ import { MersenneTwister } from "./MersenneTwister.js";
  * @param {string[]} params.rarityTable - レアリティの名前
  * @param {int} params.itemLineupNum - ラインナップの表示個数
  * @param {string[]} params.resultItems - アイテムリスト
+ * @param {bool} params.isFilterOnlyActiveItems - 表示されているアイテムリストのに存在するレアリティの中から抽選 default:true
  * @returns {Object[]} 排出されたアイテム群[({ レアリティ, アイテム })]
  */
-export function gachaLogic({gachaCount, probabilities, rarityNum, rarityTable, itemLineupNum, resultItems}) {
+export function gachaLogic({gachaCount, probabilities, rarityNum, rarityTable, itemLineupNum, resultItems, isFilterOnlyActiveItems = true}) {
     //配列生成
     const itemArray = {};
     for (const rarity of rarityTable) {
@@ -29,6 +30,25 @@ export function gachaLogic({gachaCount, probabilities, rarityNum, rarityTable, i
         if(itemArray[itemObj.rarity]) itemArray[itemObj.rarity].push(itemName);
     }
 
+     //フィルタ機能
+    if (isFilterOnlyActiveItems) {
+        let removedProbabilityTotal = 0;
+
+        for (let i = 0; i < rarityNum; i++) {
+            const rarity = rarityTable[i];
+            
+            //ラインナップに存在しないレアリティ
+            if (itemArray[rarity].length === 0) {
+                removedProbabilityTotal += probabilities[i];
+                probabilities[i] = 0;
+            }
+        }
+
+        // 0番目のレアリティに加算
+        if (removedProbabilityTotal > 0) {
+            probabilities[0] += removedProbabilityTotal;
+        }
+    }
 
     // 累積確率作成
     const cumulativeProb = [];
@@ -47,17 +67,20 @@ export function gachaLogic({gachaCount, probabilities, rarityNum, rarityTable, i
     //countに応じたループ(n連実装部)
     for(let i = 0; i < gachaCount; i++ ){
         
-        //初期化
+        //乱数生成
         let rand = mt.random()*100;
 
         // 二分探索でレアリティ決定
-        let left = 0, right = rarityNum - 1, rarityIndex = right;
+        let left = 0, right = rarityNum - 1
+        let rarityIndex = right;
+
         while (left <= right) {
             const mid = Math.floor((left + right) / 2);
             if (rand < cumulativeProb[mid]) {
                 rarityIndex = mid;
                 right = mid - 1;
-            } else {
+            }
+            else {
                 left = mid + 1;
             }
         }

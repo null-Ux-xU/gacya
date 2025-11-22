@@ -5,6 +5,7 @@ import { arraySummary } from "./arraySummary.js";
 import { createTableElement } from "./createTableElement.js";
 import {saveDataToLocalStorage, getDataFromLocalStorage} from "./localStrage.js";
 import {createTableHeader} from "./createTableHeader.js";
+import {importZipFile} from "./importZip.js";
 class MainData
 {
 
@@ -32,6 +33,8 @@ class MainData
     UR: 1.5,
     LR: 0.5
   };
+
+  static localStorageFilesKey = new Array;
   //------------------------
   
   //---ユーザーの操作によって自由に変更されるデータ群-----
@@ -131,7 +134,8 @@ function callMainAction(count) {
     rarityNum: MainData.rarityNum,
     rarityTable: MainData.rarityTable,
     resultItems: MainData.resultItems,
-    itemLineupNum: MainData.itemLineupNum
+    itemLineupNum: MainData.itemLineupNum,
+    isFilterOnlyActiveItems: document.getElementById("isFilterOnlyActiveItems")?.checked
   });
 
   //レアリティソート
@@ -441,6 +445,16 @@ window.addEventListener("DOMContentLoaded", () => {
 
   //デバッグ用
   document.getElementById("showMaindatabutton").addEventListener("click", () => MainData.debugMainData());
+
+
+  document.getElementById("importZip").addEventListener("change", async(e)=>{
+    const returnParam = await importZipFile(e);
+    if(!returnParam) return;
+    
+    MainData.resultItems = returnParam.resultItems;
+    MainData.itemLineupNum = returnParam.fileNum;
+    showLineup();
+  });
 
   //アイテム表示数変更時に再描画
   document.getElementById("lineupNum").addEventListener("change", (e) => {
