@@ -1,30 +1,168 @@
+/* === 全体の基本設定 === */
 body {
   font-family: sans-serif;
+  margin: 0;
+  padding: 16px;
   text-align: center;
-  margin-top: 50px;
-}
-button {
-  font-size: 1.2em;
-  padding: 10px 20px;
-  cursor: pointer;
-}
-.table-container {
-  width: 100%;
-  overflow-x: auto; /* スマホでは横スクロール可 */
+  background: #f9f9f9;
+  font-size: 45px;
 }
 
+h2, h3 {
+  margin: 16px 0 8px;
+}
+
+/* === 入力フォーム全般 === */
+input[type="text"],
+input[type="number"],
+select {
+  width: 100%;
+  height: 100%;
+  font-size: 35px;
+  padding: 0px;
+  margin: 0px;
+  border: none;
+}
+
+/* === ボタン === */
+button,
+.download-button {
+  display: inline-block;
+  font-size: 1rem;
+  padding: 12px 20px;
+  cursor: pointer;
+  border-radius: 20px;
+  margin: 6px;
+  border: 2px solid #8db6cf;
+  color: #8db6cf;
+  background: #ffffff;
+  transition: 0.3s;
+}
+
+button:hover,
+.download-button:hover {
+  background: #8db6cf;
+  color: #ffffff;
+}
+
+/* .download-button 内部テキスト調整 */
+.download-button .text {
+  position: relative;
+  z-index: 2;
+  white-space: nowrap;
+}
+
+.file-btn {
+  display: inline-block;
+  padding: 8px 16px;
+  background: #CC91A2;
+  color: #ffffff;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+/* 本来のファイル選択を非表示 */
+.file-btn input[type="file"] {
+  display: none;
+}
+
+
+/* === テーブル共通 === */
 table {
   width: 100%;
+  min-width: 480px; /* スマホ横スクロール対策 */
   border-collapse: collapse;
-  min-width: 480px; /* 最低幅を確保して崩れを防止 */
-}
-
-th, td {
-  border: 1px solid black;
-  padding: 4px 8px;
+  background: #ffffff;
+  margin: 10px auto;
+  
 }
 
 th {
-  background: #f0f0f0;
-  text-align: center;
+  border: 1px solid #000000;
+  padding: 6px;
+  font-size: 14px;
+  word-break: break-word;
+  color: #ffffff;
+  font-size: 35px;
 }
+td {
+  border: 1px solid #000000;
+  padding: 6px;
+  font-size: 14px;
+  word-break: break-word;
+  font-size: 35px;
+}
+
+th {
+  background: #8db6cf;
+}
+
+/* === テーブルが画面外にはみ出さないように === */
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* Tweet ボタン隠れててもズレ防止 */
+#tweetButton[hidden] {
+  display: none;
+}
+
+/* ==================================
+    📱スマホ向け調整（幅480px以下）
+================================== */
+@media (max-width: 480px) {
+  body {
+    padding: 12px;
+    font-size: 18px;
+  }
+
+  h2 {
+    font-size: 22px;
+  }
+
+  h3 {
+    font-size: 20px;
+  }
+
+  label {
+    font-size: 18px;
+  }
+
+  input[type="text"],
+  input[type="number"],
+  select {
+    width: 100%;
+    max-width: none;
+    font-size: 18px;
+    padding: 12px;
+  }
+
+  button,
+  .download-button {
+    width: 100%;
+    max-width: none;
+    font-size: 20px;
+    padding: 15px 0;
+    margin: 10px 0;
+  }
+
+  table {
+    font-size: 17px;
+    min-width: 420px;
+  }
+
+  th,
+  td {
+    padding: 10px;
+    font-size: 17px;
+  }
+
+  #rarityNamesEditor,
+  #rarityTable {
+    font-size: 18px;
+  }
+}
+

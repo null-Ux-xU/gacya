@@ -10,9 +10,9 @@ export function createTableHeader(headerTextArray) {
     headerTextArray.forEach(text => {
         const th = document.createElement("th");
         th.textContent = text;
-        th.style.border = "1px solid black";
-        th.style.padding = "4px 8px";
-        th.style.background = "#f0f0f0";
+        //th.style.border = "1px solid black";
+        //th.style.padding = "4px 8px";
+        //th.style.background = "#f0f0f0";
         headerRow.appendChild(th);
     });  
     thead.appendChild(headerRow);

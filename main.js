@@ -320,7 +320,7 @@ function updateLabels() {
       rarityName: rarity
     });
     tdNameInput.addEventListener("input", onNameInput);
-    applyCellStyle(tdNameInput);
+    //applyCellStyle(tdNameInput);
 
     //確率入力
     const  tdProbInput = createTableElement({
@@ -334,7 +334,7 @@ function updateLabels() {
       rarityName: rarity
     });
     tdProbInput.addEventListener("input", onProbInput);
-    applyCellStyle(tdProbInput);
+    //applyCellStyle(tdProbInput);
    
     //作成したエレメントを追加
     row.appendChild(tdNameInput);
@@ -452,14 +452,6 @@ function showLineup() {
   }
 
   table.appendChild(tbody);
-
-  //表スタイル
-  table.style.borderCollapse = "collapse";
-  table.style.marginTop = "10px";
-  table.querySelectorAll("th, td").forEach(cell => {
-    cell.style.border = "1px solid black";
-    cell.style.padding = "4px 8px";
-  });  
 }
 
 /**

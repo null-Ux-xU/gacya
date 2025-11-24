@@ -24,11 +24,11 @@ export function createTableElement({elementId, elementName, inputType, inputValu
     input.ariaLabel = ariaLabel;                //補助テキスト
 
     if(styleWidthValue !== null) {
-        input.style.width = styleWidthValue;    //style.width指定
+        //input.style.width = styleWidthValue;    //style.width指定
     }
 
     if(stepValue !== null) {
-        input.step = stepValue;                 //step指定
+        //input.step = stepValue;                 //step指定
     } 
     tdElement.appendChild(input);
     return tdElement;

@@ -10,13 +10,17 @@
     <h2>ガチャ設定</h2>
 
     <div>
-      ガチャ切り替え<br>
+      ガチャ切り替え
       <select id="loadZipName">
         <option>新規データ</option>
       </select>
     </div>
 
-    <input type="file" id="importZip" accept=".zip">
+    <label class="file-btn">
+      ファイルを選択
+      <input type="file" id="importZip">
+    </label>
+    
 
     <br><br>
     ガチャの名前(保存用)<br>
@@ -24,7 +28,7 @@
 
     <h3>レアリティ名の編集</h3>
     <div id="rarityNamesEditor"></div>
-    <label>レアリティ数量 <input id="rarityNum" type="number" value="6" step="1" min="1" max="6"></label><br>
+    <label>レアリティ数量 <input id="rarityNum" type="number" value="6" step="1" min="1" max="6"></label>
 
     <div id="rarityTable">
       <label>N  : <input id="probN"  type="number" value="60" step="0.1"> %</label><br>
@@ -73,7 +77,7 @@
     </div>
 
 
-    <table id="resultTable" border="1" style="border-collapse: collapse; margin-top: 10px;">
+    <table id="resultTable">
       <thead>
         <tr>
           <th>レアリティ</th>
@@ -85,7 +89,7 @@
     </table>
 
     <a id="downloadZipBtn" class="download-button">
-      結果をzipファイルにまとめてダウンロード
+       <span class="text">結果をzipファイルにまとめてダウンロード</span>
     </a>
 
     <button id="tweetButton" hidden>結果をツイートする</button>
