@@ -5,8 +5,8 @@ import { arraySummary } from "./arraySummary.js";
 import { createTableElement } from "./createTableElement.js";
 import {saveDataToLocalStorage, getDataFromLocalStorage} from "./localStrage.js";
 import {createTableHeader} from "./createTableHeader.js";
-import {importZipFile, downloadZip, loadZip} from "./importZip.js";
-import {saveToIndexedDB, loadFromIndexedDB, showAllIndexedDBData} from "./indexedDB.js";
+import {importZipFile, getResultItemsToFile} from "./importZip.js";
+import {saveToIndexedDB, loadFromIndexedDB, clearAllIndexedDBData, showAllIndexedDBData} from "./indexedDB.js";
 
 class MainData
 {
@@ -32,11 +32,19 @@ class MainData
     LR: 0.5
   };
 
+  //DBに保存されているkeyの一覧
   static dataKey = new Array;
+
+  //現在読み込んでいるデータのkey
+  static onLoadedDatakey = "";
+
+  //データ消去の警告文
+  static deleteMassage ="以下のデータが全て削除されます。よろしいですか？\n・ガチャの名前\n・読み込んだファイル\n・レアリティ表示名\n・排出確率\n・排出アイテム";
   //------------------------
   
   //---ユーザーの操作によって自由に変更されるデータ群-----
 
+  //ガチャの名前(連想配列でdatakeyと紐づける)
   static gachaName = new Map;
 
   //レアリティ総数
@@ -82,6 +90,7 @@ class MainData
    * 編集可能な値の初期化
    */
   static initDefaultValue(){
+    MainData.onLoadedDatakey = "";
     this.setEditableDatas();
   }
 
@@ -164,6 +173,8 @@ class MainData
       
       msg += `  ${indexKey}: ${name}\n`;
     }
+    msg += "\n";
+    msg += `[onLoadedDatakey]:${MainData.onLoadedDatakey}`;
 
     console.log(msg);
   }
@@ -174,7 +185,7 @@ class MainData
  * 
  * @param {int} count ガチャ回数
  */
-function callMainAction(count) {
+async function callMainAction(count) {
   //入力欄から確率を取得
   const probabilities = MainData.rarityTable.slice(0, MainData.rarityNum).map(r => {
     return parseFloat(document.getElementById(r + "-Probability").value);
@@ -209,6 +220,7 @@ function callMainAction(count) {
   }
 
   //表示処理
+  const resultIndexNo = [];
   const tbody = document.getElementById("resultBody");
   tbody.replaceChildren(); 
   for (const res of resultLen) {
@@ -217,32 +229,39 @@ function callMainAction(count) {
       `<tr><td>${MainData.rarityDisplayNames[res.rarity]}</td><td>${res.item}</td><td>×${res.val || 1}個</td></tr>`
     );
     console.log(`${res.indexNo}`);
+    const index = parseInt(res.indexNo.split(".")[1], 10);
+    resultIndexNo.push(index);
+    console.log(index);
   }
-  if(MainData.dataKey.length === 0) return;
- 
-  downloadZip(MainData.dataKey[0]);
+  if(MainData.onLoadedDatakey){
+    await getResultItemsToFile(MainData.onLoadedDatakey, resultIndexNo);
+  }
+  
 }
 
 function updateLineupToZip(id) {
   if(MainData.dataKey.length > 0) {
-    const stringValue = "新規データ";
     const loadZipNameElement = document.getElementById("loadZipName");
+    if (!loadZipNameElement) return;
     loadZipNameElement.replaceChildren();
+    const fragment = document.createDocumentFragment();
 
-    MainData.dataKey.forEach(r => {
+    for(const [key ,value] of MainData.gachaName.entries()){
       const option = document.createElement("option");
-      option.value = r;
-      option.textContent = r;
-      if(id === r)option.selected = true;
-      loadZipNameElement.appendChild(option);
-    });
+      option.value = key;
+      option.textContent = value;
+      if(id === key)option.selected = true;
+      fragment.appendChild(option);
+    }
+
+    const stringValue = "新規データ";
     const option = document.createElement("option");
     option.value = stringValue;
     option.textContent = stringValue;
-    if(!id) option.selected = true;
-    loadZipNameElement.appendChild(option);
+    if(id === undefined || id === null) option.selected = true;
+    fragment.appendChild(option);
 
-    loadZipNameElement.hidden = false;
+    loadZipNameElement.appendChild(fragment);
   }
 }
 
@@ -278,7 +297,7 @@ function updateLabels() {
     const displayName = MainData.rarityDisplayNames[rarity];
     const resultValue = editableWeights[i]?.toFixed(2) || baseWeights[i].toFixed(2);
     const row = document.createElement("tr");
-
+    
     //表示名入力
     const  tdNameInput = createTableElement({
       elementId: rarity + "-DisplayName",
@@ -436,15 +455,19 @@ function showLineup() {
  * 編集可能な情報をロードする関数
  */
 function loadMainData() {
-
   const datas = getDataFromLocalStorage("gacyaData");
-  if(datas && datas.dataKey) {
-    for(let i = 0; i < datas.dataKey.length; i++) {
-      MainData.dataKey.push(datas.dataKey[i]);
-    }
+  if(!datas) {
+    console.log("localStorage に保存されたデータが存在しません");
+    return;
   }
-  else {
-    console.log("localdataが存在しない");
+  // dataKey 配列がある場合
+  if(Array.isArray(datas.dataKey)) {
+    MainData.dataKey = [...datas.dataKey];
+  }
+
+  // gachaName が存在していたら Map として復元
+  if(datas.gachaName && typeof datas.gachaName === "object") {
+    MainData.gachaName = new Map(Object.entries(datas.gachaName));
   }
 }
 
@@ -452,7 +475,11 @@ function loadMainData() {
  * 編集可能な情報を保存する関数
  */
 function saveMainData() {
-  saveDataToLocalStorage("gacyaData",{dataKey:MainData.dataKey,gachaName:MainData.gachaName});
+  const saveData = {
+    dataKey: [...MainData.dataKey],
+    gachaName: Object.fromEntries(MainData.gachaName)
+  };
+  saveDataToLocalStorage("gacyaData",saveData);
   alert("保存しました！");
 }
 /**
@@ -463,7 +490,6 @@ function saveMainData() {
 function deleteLocalStrageData(text) {
   if(typeof text === "string") {
     localStorage.removeItem(text);
-    alert("消しました");
   }
   else {
     console.log("文字列じゃないよ");
@@ -495,21 +521,6 @@ function calcTotalValue(numberArray){
   return totalWeight;
 }
 
-/**
- * ベースウェイトをレアリティの数に合わせた配列を取得する関数
- * 
- * @param {int} rarityNum 
- * @returns 
- */
-function getCorrectedBaceWight(rarityNum){
-  //表示されるところ
-  const baseWeights = MainData.baseWeights.slice(0, MainData.rarityNum);
-  
-  //失われた値を最高レアリティに追加
-  baseWeights[MainData.rarityNum - 1] += parseFloat(100 - calcTotalValue(baseWeights));
-  return baseWeights;
-}
-
 //表示名変更
 function onNameInput(e) {
   const rarity = e.target.id.replace(/-DisplayName$/, "");
@@ -527,51 +538,14 @@ function onProbInput(e) {
 
 // イベント登録
 window.addEventListener("DOMContentLoaded", () => {
+  // --- 初期化処理 ---
   loadMainData();
   updateLineupToZip();
   updateLabels();
   showLineup();
 
-  //デバッグ用
-  document.getElementById("showMaindatabutton").addEventListener("click", () => MainData.debugMainData());
-  document.getElementById("showDB").addEventListener("click", async () => {
-    const allData = await showAllIndexedDBData();
-    console.log("取得結果 →", allData);
-  });
-
-  //過去に読み込んだファイルのロード
+  // --- データ管理イベント ---
   const loadZipNameElement = document.getElementById("loadZipName");
-  loadZipNameElement.addEventListener("change", async(e) => {
-    const loadDataKey = e.target.value;
-
-    if(!MainData.dataKey.includes(loadDataKey)) {
-      console.log("指定されたキーは存在しません");
-      MainData.initDefaultValue();
-      updateLabels();
-      showLineup();
-      return;
-    }
-    const returnParam = await loadFromIndexedDB(loadDataKey);    
-    if (!returnParam) {
-      console.log("データが見つかりません");
-      MainData.initDefaultValue();
-      updateLabels();
-      showLineup();
-      return;
-    }
-    else if(!(returnParam.blob instanceof Blob)){
-      MainData.setEditableDatas(returnParam.editableMainData);
-      updateLabels();
-      showLineup();
-      return;
-    }    
-    MainData.resultItems = returnParam.resultItems;
-    MainData.itemLineupNum = returnParam.fileNum;
-    document.getElementById("lineupNum").value = MainData.itemLineupNum;
-    if(!MainData.dataKey.includes(returnParam.zipId)) MainData.dataKey.push(returnParam.zipId);
-    MainData.gachaName.set(returnParam.zipId, returnParam.zipId);
-    showLineup();
-  });
 
   //新規ファイルのインポート
   document.getElementById("importZip").addEventListener("change", async(e)=>{
@@ -579,15 +553,108 @@ window.addEventListener("DOMContentLoaded", () => {
     if(!returnParam) return;
     
     MainData.resultItems = returnParam.resultItems;
-    MainData.itemLineupNum = returnParam.fileNum;
     MainData.dataKey.push(returnParam.zipId);
     MainData.gachaName.set(returnParam.zipId, returnParam.zipId);
-    document.getElementById("lineupNum").value = MainData.itemLineupNum;
+    document.getElementById("lineupNum").value = MainData.itemLineupNum = returnParam.itemLineupNum;
     loadZipNameElement.value = returnParam.zipId;
     showLineup();
     updateLineupToZip(returnParam.zipId);
-    
+    MainData.onLoadedDatakey = returnParam.zipId;
+    saveMainData();
   });
+  
+  //過去に読み込んだファイルのロード
+  loadZipNameElement.addEventListener("change", async(e) => {
+    const loadDataKey = e.target.value;
+
+    //キーが存在しない(新規データ想定)
+    if(!MainData.dataKey.includes(loadDataKey)) {
+      console.log("指定されたキーは存在しません");
+      MainData.initDefaultValue();
+      updateLabels();
+      showLineup();
+      return;
+    }
+    //読み込み処理
+    const returnParam = await loadFromIndexedDB(loadDataKey);   
+    //データが無い(例外処理) 
+    if (!returnParam) {
+      console.log("データが見つかりません");
+      MainData.initDefaultValue();
+      updateLabels();
+      showLineup();
+      return;
+    }
+    MainData.onLoadedDatakey = returnParam.id;
+    //Blobが無い(ファイル読み込み無し、データ保存想定)
+    if(!(returnParam.blob instanceof Blob)){
+      MainData.setEditableDatas(returnParam.editableMainData);
+      updateLabels();
+      showLineup();
+      MainData.onLoadedDatakey = returnParam.id;
+      return;
+    }
+    //zipファイルがあった場合    
+    MainData.resultItems = returnParam.editableMainData.resultItems;
+    document.getElementById("lineupNum").value = MainData.itemLineupNum = returnParam.editableMainData.itemLineupNum;
+    if(!MainData.dataKey.includes(returnParam.zipId)) MainData.dataKey.push(returnParam.zipId);
+    MainData.gachaName.set(returnParam.zipId, returnParam.gachaName);
+    showLineup();
+  });
+
+  //データ保存イベント
+  document.getElementById("saveButton").addEventListener("click", async() =>{
+    //保存する名前の取得
+    const nameField = document.getElementById("gachaName");
+    const gachaName = nameField.value.trim();
+
+    if(!gachaName) {
+      alert("ガチャの名前を入力してください！");
+      return;
+    }
+
+    //表示しているデータが既に存在するかチェック
+    if(MainData.dataKey.includes(MainData.onLoadedDatakey)) {
+      //ガチャの名前を変更
+      MainData.gachaName.set(MainData.onLoadedDatakey, gachaName);
+      const newData = await loadFromIndexedDB(MainData.onLoadedDatakey);
+      newData.editableMainData = structuredClone(MainData.getEditableDatas());
+      saveToIndexedDB(newData.id, gachaName, newData.blob ?? null, newData.editableMainData);
+      saveMainData();
+      updateLineupToZip(newData.id);
+      MainData.onLoadedDatakey = newData.id;
+    }
+    else {
+      //新規作成
+      MainData.dataKey.push(gachaName);
+      MainData.gachaName.set(gachaName, gachaName);
+      const saveData = MainData.getEditableDatas();
+      saveToIndexedDB(gachaName, gachaName, null, saveData);
+      saveMainData();
+      updateLineupToZip(gachaName);
+      MainData.onLoadedDatakey = gachaName;  
+    }
+    nameField.value = "";
+  });
+
+  //データの全削除イベント
+  document.getElementById("deleteDataButton").addEventListener("click", () =>{
+    // 確認ポップアップ
+    if (confirm(MainData.deleteMassage)) {
+        //全削除
+        clearAllIndexedDBData().then(() => {
+          deleteMainData();   //localstrageも削除
+          location.reload();  //ページのリロード
+          alert("削除が完了しました。");
+        }).catch(err => {
+          console.error("削除に失敗しました:", err);
+          alert("削除に失敗しました。");
+        });
+    }
+  });
+
+
+  // --- 基本ロジックイベント群 ---
 
   //アイテム表示数変更時に再描画
   document.getElementById("lineupNum").addEventListener("change", (e) => {
@@ -602,47 +669,38 @@ window.addEventListener("DOMContentLoaded", () => {
     showLineup();
   });
 
+  // --- ガチャ実行イベント群 ---
+
   //gachaSingleがクリックされた時
-  document.getElementById("gachaSingle").addEventListener("click", () => callMainAction(1));
+  document.getElementById("gachaSingle").addEventListener("click", async() => await callMainAction(1));
 
   //gachaTenがクリックされた時
-  document.getElementById("gachaTen").addEventListener("click", () => callMainAction(10));
+  document.getElementById("gachaTen").addEventListener("click", async() => await callMainAction(10));
 
   //gachaCustomがクリックされた時
-  document.getElementById("gachaCustom").addEventListener("click", () => {
+  document.getElementById("gachaCustom").addEventListener("click", async () => {
     const element = document.getElementById("gachaCount")
     const count = parseInt(element.value);
+
+    //自分のPCで動く限界値(適当)
     if(count > 1000001) {
       alert("回数は1000000以下にしてください");
       element.value = 1000000;
     }
     else {
-      callMainAction(count);
+      await callMainAction(count);
     }
   });
 
-  //データの保存をクリックされた時
-  document.getElementById("saveButton").addEventListener("click", () =>{
-    const nameField = document.getElementById("gachaName");
-    const gachaName = nameField.value.trim();
-
-    if(!gachaName) {
-      alert("ガチャの名前を入力してください！");
-      return;
-    }
-    if(!MainData.dataKey.includes(gachaName)) MainData.dataKey.push(gachaName);
-    if(!MainData.gachaName.get(gachaName)) MainData.gachaName.set(gachaName,gachaName);
-    const saveData = MainData.getEditableDatas();
-    saveToIndexedDB(gachaName, "null", saveData);
-    saveMainData();
-    updateLineupToZip(gachaName);
+  // --- デバッグ用 ---
+  document.getElementById("showMaindatabutton").addEventListener("click", () => MainData.debugMainData());
+  document.getElementById("showDB").addEventListener("click", async () => {
+    const allData = await showAllIndexedDBData();
+    console.log("取得結果 →", allData);
   });
-
-  //保存したデータの削除をクリックされた時
-  document.getElementById("deleteDataButton").addEventListener("click", () =>deleteMainData());
-
   document.getElementById("showlocalstrage").addEventListener("click", () =>{
 
+    //keyの情報取得
     const datas = getDataFromLocalStorage("gacyaData");
     if(!datas) {
       console.log("localdataが存在しない");
