@@ -21,44 +21,6 @@ input[type="text"]{
   border: none;
 }
 
-input[type="number"][name="editRarityProbabilityForm"] {
-  text-align: center; 
-  outline: none;
-  transform: translate3d(-35%,0px,0px);
-  width: 100px;
-  height: 5%;
-}
-
-.ProbabilityWrapper {
-  position: relative;
-  display: inline-block;
-  width: 100%;
-}
-
-.ProbabilityWrapper input {
-  width: 90%;
-  padding-right: 40px; 
-  font-size: 35px;
-  padding: 0px;
-  margin: 0px;
-  border: none;
-}
-input[type="number"][name="lineupNum"] {
-  text-align: left; 
-  width: 35px;
-  font-size: 45px;
-}
-
-/* 擬似要素で % を表示 */
-.ProbabilityWrapper::after {
-  content: "%";
-  position: absolute;
-  right: 10px;
-  transform: translate3d(-110px,-50px,0px);
-  font-size: 35px;
-  color: #323232;
-}
-
 select {
   width: 100%;
   height: 100%;
@@ -66,20 +28,32 @@ select {
   padding: 0px;
   margin: 0px;
   border: none;
+  background: #f9f9f9;
+}
+select option {
+  font-size: 13px;
 }
 
 .loadZipName {
-  text-align: center;
-  width: 100%;
+  text-align: left;
+  width: 350px;
   margin: 5px;
-  padding-left: 25;
+  padding-left: 25px;
+  border: 10px;
 }
-/*デバッグボタンの非表示*/
-.debug{
-  display: none;
+.loadZipName option {
+  width: 150px;
+  text-align: left;
+  padding: 0;
+  transform: translate3d(-80px,0,0);
+  font-size: 13px;
 }
 
-/* === ボタン === */
+/*デバッグボタンの非表示*/
+.debug{
+  
+}
+
 button,
 .download-button {
   display: inline-block;
@@ -93,45 +67,31 @@ button,
   background: #ffffff;
   transition: 0.3s;
 }
-.plus {
-  position: absolute;
-  transform: translate3d(50px,0px,0px);
-  margin: 5px;
-  width: 40px;         
-  height: 40px;   
-  display: inline-flex; 
-  justify-content: center;
-  align-items: center;     
-  padding: 0;
-  box-sizing: border-box;
-  line-height: 1;
-}
-.minus {
-  position: absolute;
-  transform: translate3d(95px,0px,0px);
-  font-size: 45px;
-  margin: 5px;
-  width: 40px;         
-  height: 40px;       
-  display: inline-flex; 
-  justify-content: center;
-  align-items: center;  
-  padding: 0;
-  box-sizing: border-box;
-  line-height: 1;
-}
+
 
 button:hover,
 .download-button:hover {
   background: #8db6cf;
   color: #ffffff;
 }
-.button[class="deleteDataButton"] {
+.saveButton {
+  border: 2px solid #6c83c9;
+  color: #ffffff;
+  background: #8db6cf;
+}
+.saveButton:hover {
+  background: #6c83c9;
+  color: #ffffff;
+}
+.deleteDataButton {
   border: 2px solid #CC91A2;
   color: #CC91A2;
-  background: #ffffff;
 }
-/* .download-button 内部テキスト調整 */
+.deleteDataButton:hover {
+  background: #CC91A2;
+  color: #ffffff;
+}
+
 .download-button.text {
   position: relative;
   z-index: 2;
@@ -154,39 +114,139 @@ button:hover,
   display: none;
 }
 
-/* === テーブル共通 === */
 table {
-  width: 850px;
-  min-width: 480px; /* スマホ横スクロール対策 */
+  width: 90%;
   border-collapse: collapse;
-  background: #ffffff;
-  margin: 10px auto;
+  background: #ffffff;  
+  margin: 0 auto; 
 }
 
 th {
   border: 1px solid #323232;
-  padding: 6px;
-  font-size: 14px;
-  word-break: break-word;
   color: #ffffff;
   font-size: 35px;
   background: #8db6cf;
 }
 td {
   border: 1px solid #323232;
-  padding: 3px;
-  font-size: 14px;
-  word-break: break-word;
   font-size: 35px;
+  padding: 0;
+  position: relative;
+}
+td input,
+td select {
+  width: 100%;
+  height: 100%;
+  border: none;
+  margin: 0;
+  padding: 0 6px;
+  box-sizing: border-box; 
+  align-items: center; 
+  line-height: 1;
+}
+/* レアリティ名編集input */
+td input[type="text"][name="editRarityDisplayNameForm"] {
+  text-align: left; 
+  font-size: 35px;
+  padding-left: 10px;
+}
+/* 確率編集input */
+td input[type="number"][name="editRarityProbabilityForm"] {
+  width: 70%;
+  font-size: 35px;
+  border: none;
+  padding-left: 10px;
+  margin: 5px;
+}
+td select {
+  background-color: #ffffff;
+}
+.ProbabilityWrapper::after {
+  content: "%";
+  position: absolute;
+  right: 10px;
+  transform: translate3d(-145px,-48px,0px);
+  font-size: 35px;
+  color: #323232;
+}
+td .plus {
+  position: absolute;
+  width: 40px;         
+  height: 40px;  
+  right: 0;
+  top: 50%;
+  margin: 0%;
+  display: inline-flex; 
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  line-height: 1;
+  transform: translate3d(-50px,-20px,0);
+  margin: 0px;
+  border: 1px solid #80b6cf; 
+}
+td .minus {
+  position: absolute;
+  padding: 0px;
+  padding-bottom: 5px;
+  width: 40px;         
+  height: 40px;
+  right: 0;
+  top: 50%;
+  margin: 5px;    
+  display: inline-flex; 
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  line-height: 1;  
+  transform: translate3d(0px,-25px,0);
+  font-size: 45px;
+  border: 1px solid #80b6cf; 
 }
 
-
-input[type="text"][name="editRarityDisplayNameForm"] {
+.lineupNum {
+  display: block;   
   text-align: left; 
-  width: 50px;
-  height: auto;
-  font-size: 35px;
-  transform: translate3d(-40px,0px,0px);
+  margin-left: 50px; 
+  box-sizing: border-box;
+}
+.lineupNum input {
+  width: 100px;
+  text-align: left; 
+  font-size: 45px;
+  background-color: #f9f9f9;
+  border: none;
+  outline: none;
+  box-sizing: border-box;
+}
+.lineupNum .plus, .minus{
+  width: 65px;
+  height: 65px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  border: 2px solid #8db6cf;
+  background: #ffffff;
+  cursor: pointer;
+  font-size: 30px;
+  line-height: 1;
+  padding: 0;
+  box-sizing: border-box;
+  vertical-align: middle;
+}
+.lineupNum .minus {
+
+  font-size: 45px;
+  padding-bottom: 5px;
+  margin: 5px;   
+}
+.lineupNum .plus:hover {
+  background: #8db6cf;
+  color: #ffffff;
+}
+#rarityNum  {
+  width: 100px;
 }
 
 /* === テーブルが画面外にはみ出さないように === */

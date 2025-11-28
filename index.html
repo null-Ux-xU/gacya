@@ -11,7 +11,7 @@
 
     <label class="loadZipName">
       ガチャ切り替え
-      <select id="loadZipName">
+      <select id="loadZipName" class="loadZipName">
         <option>新規データ</option>
       </select>
     </label>
@@ -27,8 +27,18 @@
     <input type="text" id="gachaName">
 
     
-    <div id="rarityNamesEditor"></div>
-    <label>レアリティ数量 <input id="rarityNum" type="number" value="6" step="1" min="1" max="6"></label>
+    <div class="rarityNum"></div>
+    <label>
+      レアリティ数量
+      <select id="rarityNum">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+        <option value="6" selected>6</option>
+      </select>
+    </label>
 
     <div id="rarityTable">
       <label>N  : <input id="probN"  type="number" value="60" step="0.1"> %</label><br>
@@ -40,7 +50,7 @@
     </div>
 
     <div>
-      <button id="saveButton">編集したデータの保存</button>
+      <button id="saveButton" class="saveButton">編集したデータの保存</button>
       <button id="deleteDataButton" class="deleteDataButton">保存したデータの削除</button>
     </div>
 
@@ -56,19 +66,21 @@
     <label class="lineupNum">
       ラインナップ数： 
       <input id="lineupNum" name="lineupNum"  type="number" value="5" step="1" min="1"> 
+      <button id="lineupPlus" class="plus">+</button>
+      <button id="lineupMinus" class="minus">-</button>
     </label>
 
     <table id="lineupTable"></table><br>
 
     <label>
-        <input type="checkbox" id="isFilterOnlyActiveItems" checked>ラインナップに設定されていないレアリティを排出しない 
+        <input type="checkbox" id="isFilterOnlyActiveItems" checked>ラインナップに無いレアリティを出さない 
     </label><br>
 
     <label>ガチャ回数 <input id="gachaCount" type="number" value="100" min="1" step="1" min="1"> 回</label><br><br>
   
-    <button id="gachaSingle">単発</button>
-    <button id="gachaTen">10連</button>
-    <button id="gachaCustom">任意回数</button>
+    <button id="gachaSingle">1回</button>
+    <button id="gachaTen">10回</button>
+    <button id="gachaCustom">n回</button>
 
     <div>
       <label>
@@ -80,24 +92,24 @@
       
     </div>
 
+    <div id="resultElements" hidden>
+      <table id="resultTable">
+        <thead>
+          <tr>
+            <th>レアリティ</th>
+            <th>アイテム名</th>
+            <th>個数</th>
+          </tr>
+        </thead>
+        <tbody id="resultBody"></tbody>
+      </table>
 
-    <table id="resultTable">
-      <thead>
-        <tr>
-          <th>レアリティ</th>
-          <th>アイテム名</th>
-          <th>個数</th>
-        </tr>
-      </thead>
-      <tbody id="resultBody"></tbody>
-    </table>
+      <a id="downloadZipBtn" class="download-button">
+        <span class="text">結果をzipファイルにまとめてダウンロード</span>
+      </a>
 
-    <a id="downloadZipBtn" class="download-button">
-       <span class="text">結果をzipファイルにまとめてダウンロード</span>
-    </a>
-
-    <button id="tweetButton" hidden>結果をツイートする</button>
-
+      <button id="tweetButton">結果をツイートする</button>
+    </div>
     <script type="module" src="main.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
   </body>

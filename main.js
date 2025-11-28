@@ -89,15 +89,6 @@ class MainData
   }
 
   /**
-   * 編集可能な値の初期化
-   */
-  static initDefaultValue(){
-    MainData.onLoadedDatakey = "";
-    this.setEditableDatas();
-  }
-
-
-  /**
    * 編集可能な値全てに対して値をセットする
    * 
    * @param {Object} datas  編集可能な変数名をキーとした連想配列
@@ -126,7 +117,23 @@ class MainData
         LR: "LR"
       };
     }
+    //HTMLに対して値の変更を反映
+    const elementRarityNum = document.getElementById("rarityNum");
+    elementRarityNum.value = this.rarityNum;
+    elementRarityNum.options[elementRarityNum.value - 1];
+    document.getElementById("lineupNum").value = this.itemLineupNum;
+    updateLabels();
+    showLineup();
   }
+
+  /**
+   * 編集可能な値の初期化
+   */
+  static initDefaultValue(){
+    MainData.onLoadedDatakey = "";
+    this.setEditableDatas();
+  }
+
 
   //デバッグ用
   static debugMainData() {
@@ -329,7 +336,7 @@ function updateLabels() {
       step: parseFloat(0.1)
     });
     tdProbInput.addEventListener("input", onProbInput);
-   
+
     //作成したエレメントを追加
     row.appendChild(tdNameInput);
     row.appendChild(tdProbInput);
@@ -532,8 +539,6 @@ window.addEventListener("DOMContentLoaded", () => {
   updateLabels();
   showLineup();
 
-
-
   const input = document.querySelector('input[type="text"][name="editRarityDisplayNameForm"]');
   input.addEventListener('input', () => {
     if (input.value.length > 10) {
@@ -570,35 +575,19 @@ window.addEventListener("DOMContentLoaded", () => {
     if(!MainData.dataKey.includes(loadDataKey)) {
       console.log("指定されたキーは存在しません");
       MainData.initDefaultValue();
-      updateLabels();
-      showLineup();
       return;
     }
     //読み込み処理
     const returnParam = await loadFromIndexedDB(loadDataKey);   
+    console.log(returnParam);
     //データが無い(例外処理) 
     if (!returnParam) {
       console.log("データが見つかりません");
       MainData.initDefaultValue();
-      updateLabels();
-      showLineup();
       return;
     }
     MainData.onLoadedDatakey = returnParam.id;
-    //Blobが無い(ファイル読み込み無し、データ保存想定)
-    if(!(returnParam.blob instanceof Blob)){
-      MainData.setEditableDatas(returnParam.editableMainData);
-      updateLabels();
-      showLineup();
-      MainData.onLoadedDatakey = returnParam.id;
-      return;
-    }
-    //zipファイルがあった場合    
-    MainData.resultItems = returnParam.editableMainData.resultItems;
-    document.getElementById("lineupNum").value = MainData.itemLineupNum = returnParam.editableMainData.itemLineupNum;
-    if(!MainData.dataKey.includes(returnParam.zipId)) MainData.dataKey.push(returnParam.zipId);
-    MainData.gachaName.set(MainData.onLoadedDatakey, returnParam.gachaName);
-    showLineup();
+    MainData.setEditableDatas(returnParam.editableMainData);
   });
 
   //データ保存イベント
@@ -656,11 +645,23 @@ window.addEventListener("DOMContentLoaded", () => {
   // --- 基本ロジックイベント群 ---
 
   //アイテム表示数変更時に再描画
-  document.getElementById("lineupNum").addEventListener("change", (e) => {
+  const lineupNum = document.getElementById("lineupNum");
+    lineupNum.addEventListener("change", (e) => {
     MainData.itemLineupNum = e.target.value;
     showLineup();
   });
   
+  document.getElementById("lineupPlus").onclick = () => { 
+    lineupNum.stepUp();
+    showLineup();
+    
+  };
+
+  document.getElementById("lineupMinus").onclick = () => {
+    lineupNum.stepDown();
+    showLineup();
+  };
+
   //rarityNumが変更された時
   document.getElementById("rarityNum").addEventListener("change", (e) => {
     MainData.rarityNum = parseInt(e.target.value);
