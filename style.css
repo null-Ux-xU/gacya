@@ -19,6 +19,8 @@ input[type="text"]{
   padding: 0px;
   margin: 0px;
   border: none;
+  outline: none;
+  background: #f9f9f9;
 }
 
 select {
@@ -28,21 +30,35 @@ select {
   padding: 0px;
   margin: 0px;
   border: none;
+  outline-color: #CC91A2;
   background: #f9f9f9;
 }
 select option {
   font-size: 15px;
+  outline-color: #CC91A2;
 }
 
 .loadZipName {
   text-align: left;
-  width: 350px;
-  margin: 5px;
-  padding-left: 25px;
+  width: 100%;
+  margin-left: 60px;
+  margin-top: 60px;
+  margin-bottom: 50px;
   border: 10px;
+  white-space: nowrap;
+  align-items: center;
+}
+.loadZipName text {
+  font-size: 20px;
+}
+.loadZipName select {
+  width: auto;
+  margin-left: 10px;
+  margin-bottom: 10px;
+  font-size: 40px;
 }
 .loadZipName option {
-  width: 150px;
+  width: auto;
   text-align: left;
   padding: 0;
   transform: translate3d(-80px,0,0);
@@ -78,6 +94,7 @@ button:hover,
   border: 2px solid #6c83c9;
   color: #ffffff;
   background: #8db6cf;
+  margin-top: 30px;
 }
 .saveButton:hover {
   background: #6c83c9;
@@ -107,6 +124,8 @@ button:hover,
   cursor: pointer;
   font-size: 25px;
   font-weight: bold;
+  transform: translate3d(0,-10px,0);
+  margin-left: 20px;
 }
 
 /* 本来のファイル選択を非表示 */
@@ -116,39 +135,45 @@ button:hover,
 
 table {
   width: 90%;
-  border-collapse: collapse;
-  background: #ffffff;  
   margin: 0 auto; 
+  border-collapse: collapse;
+  background: #e0e0e0;  
 }
 
 th {
-  border: 1px solid #323232;
+  border: 1px solid #000000;
   color: #ffffff;
   font-size: 35px;
   background: #8db6cf;
 }
 td {
-  border: 1px solid #323232;
+  border: 1px solid #000000;
   font-size: 35px;
   padding: 0;
   position: relative;
 }
 td input,
 td select {
-  width: 100%;
-  height: 100%;
+  width: 95%;
+  height: auto;
   border: none;
+  outline: none;
   margin: 0;
   padding: 0 6px;
   box-sizing: border-box; 
   align-items: center; 
   line-height: 1;
+  background: #e0e0e0;
+}
+td input[type="text"] {
+  background: #e0e0e0;
 }
 /* レアリティ名編集input */
 td input[type="text"][name="editRarityDisplayNameForm"] {
   text-align: left; 
   font-size: 35px;
   padding-left: 10px;
+
 }
 /* 確率編集input */
 td input[type="number"][name="editRarityProbabilityForm"] {
@@ -157,10 +182,10 @@ td input[type="number"][name="editRarityProbabilityForm"] {
   border: none;
   padding-left: 10px;
   margin: 5px;
+  background: #e0e0e0;
 }
-td select {
-  background-color: #ffffff;
-}
+
+
 .ProbabilityWrapper::after {
   content: "%";
   position: absolute;
@@ -205,19 +230,31 @@ td .minus {
 }
 
 .lineupNum {
-  display: block;   
+  display: flex;   
   text-align: left; 
   margin-left: 50px; 
   box-sizing: border-box;
+  height: 75px;
 }
 .lineupNum input {
   width: 100px;
+  height: 75px;
   text-align: left; 
-  font-size: 45px;
+  font-size: 50px;
   background-color: #f9f9f9;
   border: none;
   outline: none;
   box-sizing: border-box;
+  padding-bottom: 3px;
+  margin-bottom: 5px;
+}
+.lineupNumButton {
+  width: 150px;
+  display: flex;
+  justify-content: flex-end;
+  padding-bottom: 5px;
+  margin-bottom: 5px;
+  transform: translate3d(0,-5px,0);
 }
 .lineupNum .plus, .minus{
   width: 65px;
@@ -228,25 +265,34 @@ td .minus {
   border-radius: 50%;
   border: 2px solid #8db6cf;
   background: #ffffff;
-  cursor: pointer;
-  font-size: 30px;
+  font-size: 35px;
   line-height: 1;
   padding: 0;
   box-sizing: border-box;
-  vertical-align: middle;
+  margin-bottom: 10px;
 }
 .lineupNum .minus {
-
   font-size: 45px;
   padding-bottom: 5px;
-  margin: 5px;   
+  margin-bottom: 5px;
 }
 .lineupNum .plus:hover {
   background: #8db6cf;
   color: #ffffff;
 }
-#rarityNum  {
+.rarityNum {
+    display: flex;
+    text-align: left;
+    margin-left: 50px;
+    box-sizing: border-box;
+    height: 60px;
+}
+.rarityNum select {
   width: 100px;
+  height: 50px;
+  font-size: 45px;
+  transform: translate3d(0,13px,0);
+  margin-left: 15px;
 }
 
 /* === テーブルが画面外にはみ出さないように === */
@@ -260,61 +306,83 @@ td .minus {
   display: none;
 }
 
-
-
-
-/*
-
-@media (max-width: 480px) {
-  body {
-    padding: 12px;
-    font-size: 18px;
+/* チェックボックス全体 */
+.checkbox {
+  width: 650px;
+  margin-left: 50px;
+  display: flex;
+  grid-template-columns: auto 1fr; /* auto はアイコン、1fr はラベル文字列を想定 */
+  gap: 10px;
+  padding: 5px;
+  font-size: 30px;
+  font-weight: normal;
+  line-height: 1.5;
+  color: #404040;
+  justify-content: flex-end;
+}
+.checkbox_icon {
+  position: relative;
+  width: 26px;
+  height: 26px;
+  appearance: none;
+  background: #FFFFFF;
+  border: solid 2px #808080;
+  border-radius: 4px;
+  box-shadow: 0 0 0 0 transparent;
+  transform: translate3d(0,8px,0);
+  display: inline-block;
+  justify-self: flex-end;
+  /* アイコン：選択済みの見た目 */
+  &:checked {
+    background: #CC91A2;
+    border-color: #CC91A2; 
   }
 
-  h2 {
-    font-size: 22px;
-  }
-
-  h3 {
-    font-size: 20px;
-  }
-
-  label {
-    font-size: 18px;
-  }
-
-  input[type="text"],
-  input[type="number"],
-  select {
+  /* チェックマーク */
+  &::before {
+    position: absolute;
+    inset: 0;
+    display: inline-flex;
     width: 100%;
-    max-width: none;
-    font-size: 18px;
-    padding: 12px;
+    height: 100%;
+    content: "";
+    opacity: 0;
+    mask-image: url("icon.svg");
+    mask-repeat: no-repeat;
+    mask-size: contain;
+    background-color: #FFFFFF;
   }
-
-  button,
-  .download-button {
-    width: 100%;
-    max-width: none;
-    font-size: 20px;
-    padding: 15px 0;
-    margin: 10px 0;
+  /* チェックマーク：選択済みの見た目 */
+  &:checked::before {
+    opacity: 1;
   }
-
-  table {
-    font-size: 17px;
-    min-width: 420px;
-  }
-
-  th,
-  td {
-    padding: 10px;
-    font-size: 17px;
-  }
-
-  #rarityNamesEditor,
-  #rarityTable {
-    font-size: 18px;
-  }
-}*/
-
+}
+.lineupTable {
+  margin-bottom: 20px;
+}
+.resultTable {
+  margin-bottom: 10px;
+}
+.gachaCount input {
+  width: 124px;
+  height: auto;
+  font-size: 45px;
+  background-color: #f9f9f9;
+  border: solid 2px #CC91A2;
+  text-align: center;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  transform: translate3d(0px,-3px,0px);
+  padding-right: 5px;
+}
+input#gachaName {
+  border: 2px solid #CC91A2;
+  background-color: #FFFFFF;
+  border-radius: 6px;
+  padding: 4px 8px;
+  outline: none;
+  margin-bottom: 15px;
+}
+button#gachaCustom {
+  margin: 14px;
+}

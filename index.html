@@ -9,26 +9,21 @@
   <body>
     <h2>ガチャツール</h2>
 
-    <label class="loadZipName">
+    <div class="loadZipName">
       ガチャ切り替え
-      <select id="loadZipName" class="loadZipName">
+      <select id="loadZipName">
         <option>新規データ</option>
       </select>
-    </label>
+      <div class="file-btn">
+        .zipファイル読込
+        <input type="file" id="importZip">
+      </div>
+    </div>
 
-    <label class="file-btn">
-      ファイルを選択
-      <input type="file" id="importZip">
-    </label>
-    
-
-    <br><br>
     ガチャの名前(保存用)<br>
-    <input type="text" id="gachaName">
-
+    <input type="text" id="gachaName" class="gachaName">
     
-    <div class="rarityNum"></div>
-    <label>
+    <div class="rarityNum">
       レアリティ数量
       <select id="rarityNum">
         <option value="1">1</option>
@@ -38,7 +33,7 @@
         <option value="5">5</option>
         <option value="6" selected>6</option>
       </select>
-    </label>
+    </div>
 
     <div id="rarityTable">
       <label>N  : <input id="probN"  type="number" value="60" step="0.1"> %</label><br>
@@ -66,34 +61,40 @@
     <label class="lineupNum">
       ラインナップ数： 
       <input id="lineupNum" name="lineupNum"  type="number" value="5" step="1" min="1"> 
-      <button id="lineupPlus" class="plus">+</button>
-      <button id="lineupMinus" class="minus">-</button>
+      <div class="lineupNumButton">
+        <button id="lineupPlus" class="plus">+</button>
+        <button id="lineupMinus" class="minus">-</button>
+      </div>
     </label>
 
-    <table id="lineupTable"></table><br>
+    <table id="lineupTable" class="lineupTable"></table>
 
-    <label>
-        <input type="checkbox" id="isFilterOnlyActiveItems" checked>ラインナップに無いレアリティを出さない 
-    </label><br>
 
-    <label>ガチャ回数 <input id="gachaCount" type="number" value="100" min="1" step="1" min="1"> 回</label><br><br>
+    <label class="userChoiceCheckBox">
+      <label class="checkbox checkbox--icon-right">
+        ラインナップに無いレアリティを出さない 
+        <input class="checkbox_icon" type="checkbox" id="isFilterOnlyActiveItems" checked/>
+      </label>
+      <label class="checkbox checkbox--icon-right">
+        重複した結果をまとめて表示する 
+        <input class="checkbox_icon" type="checkbox" id="combineDuplicates" checked/>
+      </label>
+      <label class="checkbox checkbox--icon-right">
+        レアリティ順にソートする 
+        <input class="checkbox_icon" type="checkbox" id="sortByRarity"/>
+      </label>
+    </label>
+
+
+
+    <label class="gachaCount">n = <input id="gachaCount" type="number" value="100" min="1" step="1" min="1"> 回</label><br>
   
-    <button id="gachaSingle">1回</button>
-    <button id="gachaTen">10回</button>
-    <button id="gachaCustom">n回</button>
-
-    <div>
-      <label>
-        <input type="checkbox" id="combineDuplicates" checked>重複した結果をまとめて表示する
-      </label>
-      <label>
-        <input type="checkbox" id="sortByRarity">レアリティ順にソートする
-      </label>
-      
-    </div>
+    <button id="gachaSingle">単発</button>
+    <button id="gachaTen">10連</button>
+    <button id="gachaCustom"class="gachaCustom">n回</button>
 
     <div id="resultElements" hidden>
-      <table id="resultTable">
+      <table id="resultTable" class="resultTable">
         <thead>
           <tr>
             <th>レアリティ</th>
@@ -105,9 +106,8 @@
       </table>
 
       <a id="downloadZipBtn" class="download-button">
-        <span class="text">結果をzipファイルにまとめてダウンロード</span>
+        <span class="text">景品をzipファイルにまとめる</span>
       </a>
-
       <button id="tweetButton">結果をツイートする</button>
     </div>
     <script type="module" src="main.js"></script>

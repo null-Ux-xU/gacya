@@ -170,7 +170,7 @@ class MainData
     msg += "[dataKey]\n";
   
     for(let i = 0; i < MainData.dataKey.length; i++){
-       msg += `${i} : ${MainData.dataKey[i] || "none"}\n`;
+      msg += `${i} : ${MainData.dataKey[i] || "none"}\n`;
     }
 
 
@@ -246,7 +246,7 @@ async function callMainAction(count) {
 
     resultText += `${MainData.rarityDisplayNames[res.rarity]}：${res.item} ×${res.val || 1}個\n`;
   }
-  document.getElementById("tweetButton").hidden = false;
+  document.getElementById("resultElements").hidden = false;
   
   MainData.tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(resultText)}`;
 

@@ -127,10 +127,14 @@ export async function loadZip(fileKey) {
  * @returns 成功:elament
  */
 export async function getResultItemsToFile(fileId, indexNoLen) {
+
+    const anchor = document.getElementById("downloadZipBtn");
+
     //ファイル読み込み
     const saved = await loadFromIndexedDB(fileId);
     if (!saved || !(saved.blob instanceof Blob)) {
         alert("ZIPデータが存在しません");
+        anchor.hidden = true;
         return;
     }
     //zip展開
@@ -148,10 +152,16 @@ export async function getResultItemsToFile(fileId, indexNoLen) {
     }));
 
     const resultZipBlob = await newZip.generateAsync({ type: "blob" });
+
+    if(!resultZipBlob) {
+        anchor.hidden = true;
+        return;
+    }
+
     const url = URL.createObjectURL(resultZipBlob);
 
 
-    const anchor = document.getElementById("downloadZipBtn");
+    
     anchor.className="download-button";
     anchor.href = url;
     anchor.download = `${fileId}.zip`;  
