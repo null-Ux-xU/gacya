@@ -482,6 +482,17 @@ details.terms .terms-content p {
   font-size: 20px !important;
   padding-right: 20px !important;
 }
+
+.Topics {
+  font-size: 30px;
+  text-align: center;
+}
+.Topics .TopicsText {
+  font-size: 15px;
+  text-align: center;
+}
+
+
 /* ▼スマホ（WebKit系）専用強制上書き対策 */
 @supports (-webkit-touch-callout: default) {
 
