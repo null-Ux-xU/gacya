@@ -505,7 +505,6 @@ function saveMainData() {
     gachaName: Object.fromEntries(MainData.gachaName)
   };
   saveDataToLocalStorage("gacyaData",saveData);
-  alert("保存しました！");
 }
 /**
  * 文字列と一致するlocalstlageのデータを削除
@@ -674,6 +673,7 @@ window.addEventListener("DOMContentLoaded", () => {
       MainData.onLoadedDatakey = gachaName;  
     }
     nameField.value = "";
+    alert("保存しました！");
   });
 
   //データの全削除イベント

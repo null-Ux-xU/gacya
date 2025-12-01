@@ -63,7 +63,8 @@ export async function saveHistory(historyData) {
 
     const data = {
       id: "history",
-      data: historyData
+      count: historyData.count,
+      data: historyData.history
     };
 
     const request = store.put(data);
@@ -179,23 +180,23 @@ export function buildHistoryString(history, rarityDisplayNames) {
 
             const gachas = userNames[userName];
             for (const gachaName in gachas) {
-              const stringGachaName = gachaName || "名無しのガチャ";
-                output += `        - ${stringGachaName}\n`;
+              const stringGachaName = gachaName || "名無し";
+                output += `        - ガチャ:${stringGachaName}\n`;
 
                 const data = gachas[gachaName];
                 if (data.results && data.results.length > 0) {
-                    for (const res of data.results) {
-                      for(let i = 0; i < res.length; i++)
-                      {
-                        const obj = res[i];
+                    data.results.forEach((res, index) => {
+                      const totalVal = res.reduce((sum, obj) => sum + (obj.val ?? 1), 0);
+                      output += `            --- ${index + 1}回目の結果(${totalVal}連) ---\n`;
+                      for(const obj of res) {
                         const rarity = rarityDisplayNames[obj.rarity] || obj.rarity;
                         const item = obj.item || "不明";
                         const val = obj.val || 1;
 
                         output += `            ・${rarity} / ${item} / ×${val}\n`;
                       }
-                        
-                    }
+                      output += `\n`;
+                    });
                 } else {
                     output += `            （結果なし）\n`;
                 }
