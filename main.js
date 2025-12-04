@@ -6,8 +6,10 @@ import {saveDataToLocalStorage, getDataFromLocalStorage} from "./DataSave/localS
 import {createTableHeader} from "./Create/createTableHeader.js";
 import {importZipFile, getResultItemsToFile} from "./DataSave/importZip.js";
 import {saveToIndexedDB, loadFromIndexedDB, clearAllIndexedDBData, showAllIndexedDBData, saveHistory, loadHistoryFromIndexedDB, buildHistoryString} from "./DataSave/indexedDB.js";
-import {getFormattedDate} from "./DataSave/formattedDate.js"
+import {getFormattedDate} from "./DataSave/formattedDate.js";
 import { createURL } from "./DataSave/exportHistoryToText.js";
+import { showNotification } from "./showNotification.js";
+
 class MainData
 {
 
@@ -645,9 +647,11 @@ window.addEventListener("DOMContentLoaded", () => {
     //保存する名前の取得
     const nameField = document.getElementById("gachaName");
     const gachaName = nameField.value.trim();
+    const errorText = document.getElementById("errorText");
 
     if(!gachaName) {
-      alert("ガチャの名前を入力してください！");
+      nameField.style.border = "5px solid #8a0b0b";
+      errorText.hidden = false;
       return;
     }
 
@@ -673,7 +677,9 @@ window.addEventListener("DOMContentLoaded", () => {
       MainData.onLoadedDatakey = gachaName;  
     }
     nameField.value = "";
-    alert("保存しました！");
+    nameField.style.border = "";
+    errorText.hidden = true;
+    await showNotification("保存しました", "success");
   });
 
   //データの全削除イベント
@@ -681,13 +687,12 @@ window.addEventListener("DOMContentLoaded", () => {
     // 確認ポップアップ
     if (confirm(MainData.deleteMassage)) {
         //全削除
-        clearAllIndexedDBData().then(() => {
+        clearAllIndexedDBData().then(async () => {
           deleteMainData();   //localstrageも削除
           location.reload();  //ページのリロード
-          alert("削除が完了しました。");
-        }).catch(err => {
-          console.error("削除に失敗しました:", err);
-          alert("削除に失敗しました。");
+
+        }).catch(async err => {
+          await showNotification("削除に失敗しました。", "error");
         });
     }
   });
@@ -749,7 +754,7 @@ window.addEventListener("DOMContentLoaded", () => {
     await loadHistoryFromIndexedDB(async (history) => {
       const result = buildHistoryString(history, MainData.rarityDisplayNames);
       if(result === false) {
-        alert("履歴が存在しません。");
+        await showNotification("履歴が存在しません。", "error");
       }
       console.log(result);
     });
@@ -758,12 +763,11 @@ window.addEventListener("DOMContentLoaded", () => {
     // 確認ポップアップ
     if (confirm(`ガチャの履歴が「全て」削除されます。\nよろしいですか？`)) {
         //全削除
-        clearAllIndexedDBData("history").then(() => {
+        clearAllIndexedDBData("history").then(async () => {
           location.reload();  //ページのリロード
-          alert("削除が完了しました。");
-        }).catch(err => {
-          console.error("削除に失敗しました:", err);
-          alert("削除に失敗しました。");
+          await showNotification("削除が完了しました。", "success");
+        }).catch(async err => {
+          await showNotification("削除に失敗しました。", "error");
         });
     }
   });

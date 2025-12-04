@@ -7,6 +7,7 @@
   </head>
   
   <body>
+    <div id="notification" class="notification" role="status" aria-live="polite" hidden></div>
     <h2>ガチャツール</h2>
     
     <dev class="Topics">
@@ -43,12 +44,8 @@
       </div>
   </details>
 
-
-
-
-
     <div class="loadZipName">
-      ガチャ切り替え：
+      表示中のガチャ：
       <select id="loadZipName">
         <option>新規データ</option>
       </select>
@@ -58,8 +55,12 @@
       </label>
     </div>
 
-    ガチャの名前(保存用)<br>
-    <input type="text" id="gachaName" class="gachaName">
+    <div>
+      ガチャの名前(保存用)<br>
+      <input type="text" id="gachaName" class="gachaName">
+      <div id="errorText" class="errorText" hidden>＊名前を入力してください</div>
+    </div>
+    
     
     <div class="rarityNum">
       レアリティ数量
@@ -138,7 +139,7 @@
     </div> 
     <label class="userName">
       回した人の名前<br>
-      <input type="text" id="userName">
+      <input type="text" id="userName" autocomplete="on">
     </label>
     </details>
     
@@ -169,6 +170,9 @@
       </a>
       <button id="tweetButton">結果をツイートする</button>
     </div>
+    <div class="version-tag">v1.0.1</div>
+
+    
     <script type="module" src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
     <script type="module" src="main.js"></script>
   </body>

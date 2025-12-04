@@ -1,4 +1,5 @@
 import {saveToIndexedDB, getUrl, loadFromIndexedDB} from "./indexedDB.js";
+import { showNotification } from "../showNotification.js";
 
 /**
  * 拡張子を除いたファイル名を返す
@@ -24,7 +25,7 @@ async function  takeOutFileContents(file) {
     if (files.length === 0) {
         const topFolder = Object.values(zipFile.files).find(f => f.dir);
         if (!topFolder) {
-            alert("有効なデータが含まれていません。");
+            showNotification("有効なデータが含まれていません。", "error", 4000);
             return;
         }
         const folderName = topFolder.name;
@@ -74,7 +75,7 @@ export async function importZipFile(event) {
 
     const file = event.target.files[0];
     if(!file) {
-        alert("ファイルの読み込みに失敗しました");
+        showNotification("ファイルの読み込みに失敗しました", "error", 4000);
         return;
     }
 
@@ -89,8 +90,7 @@ export async function importZipFile(event) {
             itemLineupNum: result.contents.fileNum,
         }
     );
-    
-    alert("インポートが完了しました！");
+    showNotification("読み込みが完了しました！", "success");
 
     return {
         resultItems: result.contents.resultItems,
@@ -119,7 +119,6 @@ export async function loadZip(fileKey) {
     };
 }
 
-
 /**
  * ZIPファイルをダウンロード
  * @param {string} fileId 対象ファイル
@@ -133,7 +132,7 @@ export async function getResultItemsToFile(fileId, indexNoLen, exportFileName) {
     //ファイル読み込み
     const saved = await loadFromIndexedDB(fileId);
     if (!saved || !(saved.blob instanceof Blob)) {
-        console.log("ZIPデータが存在しません");
+        showNotification("zipファイルを選択してください", "error", 4000);
         anchor.hidden = true;
         anchor.style.display = "none";
         return;
